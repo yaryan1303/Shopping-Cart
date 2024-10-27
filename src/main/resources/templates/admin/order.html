@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{base::layout(~{::section})}">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>My Orders</title>
+    <style>
+        /* General Container Styling */
+        .container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-center {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        /* Table Styling */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table th, .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .table thead th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Alternating Row Color */
+        .table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Hover Effect */
+        .table tbody tr:hover {
+            background-color: #f1f9ff;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .table thead {
+                display: none;
+            }
+
+            .table tbody tr {
+                display: block;
+                margin-bottom: 15px;
+            }
+
+            .table tbody td {
+                display: block;
+                text-align: right;
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+                position: relative;
+            }
+
+            .table tbody td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                padding-left: 10px;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+        }
+
+        /* Button Styling */
+        .btn {
+            border-radius: 20px;
+            padding: 5px 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        /* Select Box Styling */
+        select.form-control {
+            border-radius: 5px;
+            padding: 5px;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Spacing */
+        .mt-5 {
+            margin-top: 50px;
+        }
+
+        .p-5 {
+            padding: 50px;
+        }
+
+        /* Status text */
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .fw-bold {
+            font-weight: bold;
+        }
+
+        /* Disabled Buttons */
+        .disabled {
+            background-color: #d6d8db;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <section>
+        <div class="container mt-5 p-5">
+            <div class="row">
+                <p class="text-center fs-3">Orders</p>
+
+                <th:block th:if="${session.succMsg}">
+                    <p class="text-success fw-bold text-center">[[${session.succMsg}]]</p>
+                    <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+                </th:block>
+
+                <th:block th:if="${session.errorMsg}">
+                    <p class="text-danger fw-bold text-center">[[${session.errorMsg}]]</p>
+                    <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
+                </th:block>
+                <div class="col-md-4 p-4"></div>
+
+<form action="/admin/search-order" method="get" class="mb-4"> <!-- Add mb-4 for margin bottom on the form -->
+    <div class="row align-items-end">
+        <div class="col">
+            <input type="text" class="form-control" name="orderId" placeholder="Enter order id">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary">Search</button>
+        </div>
+        <div class="col-auto">
+            <a th:href="@{/admin/orders}" class="btn btn-primary">All Orders</a>
+        </div>
+    </div>
+</form>
+
+                
+
+
+                <div class="col-md-12">
+                    <table class="table table-bordered card-sh">
+                        <thead>
+                            <tr>
+                                <th scope="col">Order Id</th>
+                                <th scope="col">Delivery Details</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Product Details</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="o:${orders}">
+                                <th scope="row" data-label="Order Id">[[${o.orderId}]]</th>
+                                <td data-label="Delivery Details">
+                                    Name: [[${o.orderAddress.firstName + ' ' + o.orderAddress.lastName}]]<br>
+                                    Email: [[${o.orderAddress.email}]]<br>
+                                    Mobno: [[${o.orderAddress.mobileno}]]<br>
+                                    Address: [[${o.orderAddress.address}]]<br>
+                                    City: [[${o.orderAddress.city}]]<br>
+                                    State: [[${o.orderAddress.state}]], [[${o.orderAddress.pincode}]]
+                                </td>
+                                <td data-label="Date">[[${o.orderDate}]]</td>
+                                <td data-label="Product Details">[[${o.product.title}]]</td>
+                                <td data-label="Price">
+                                    Quantity: [[${o.quanity}]]<br>
+                                    Price: [[${o.price}]]<br>
+                                    Total Price: [[${o.quanity * o.price}]]
+                                </td>
+                                <td data-label="Status">[[${o.status}]]</td>
+                                <td data-label="Action">
+                                    <form action="/admin/update-order-status" method="post">
+                                        <div class="row">
+                                            <div class="col">
+                                                <select class="form-control" name="st">
+                                                    <option>--select--</option>
+                                                    <option value="1">In Progress</option>
+                                                    <option value="2">Order Received</option>
+                                                    <option value="3">Product Packed</option>
+                                                    <option value="4">Out for Delivery</option>
+                                                    <option value="5">Delivered</option>
+                                                    <option value="6">Cancelled</option>
+                                                </select>
+                                            </div>
+                                            <input th:value="${o.id}" name="id" type="hidden">
+                                            <div class="col">
+                                                <th:block th:if="${o.status == 'Cancelled' || o.status == 'Delivered'}">
+                                                    <button class="btn btn-primary btn-sm col disabled">Update</button>
+                                                </th:block>
+                                                <th:block th:unless="${o.status == 'Cancelled' || o.status == 'Delivered'}">
+                                                    <button class="btn btn-sm btn-primary">Update</button>
+                                                </th:block>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
